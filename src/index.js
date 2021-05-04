@@ -1,36 +1,27 @@
-const { ApolloServer, gql } = require('apollo-server');
+import dotenv from "dotenv";
+dotenv.config();
+import { ApolloServer, gql } from 'apollo-server';
 
+import schema from "./gql/index"
+import mongoDBConnect from "./utils/mongoDBConnect";
+import Book from "./models/Book";
 
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
+mongoDBConnect({url:process.env.MONGODB_URI});
+
+const server = new ApolloServer({ 
+  schema,
+  context: ({req, res}) => {
+    return {
+      Book,
+      res
+    };
   },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
-
-const typeDefs = gql`
-  type Book {
-    title: String
-    author: String
+  playground: {
+   settings: {
+    'request.credentials': 'include',
+   },
   }
-
-  type Query {
-    books: [Book]
-  }
-`;
-
-const resolvers = {
-  Query: {
-    books: () => books,
-  },
-};
-
-
-const server = new ApolloServer({ typeDefs, resolvers });
+});
 
 // The `listen` method launches a web server.
 server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
