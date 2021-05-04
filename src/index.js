@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { ApolloServer, gql } from 'apollo-server';
+import { ApolloServer } from 'apollo-server';
 
 import schema from "./gql/index"
 import mongoDBConnect from "./utils/mongoDBConnect";
@@ -12,10 +12,10 @@ const server = new ApolloServer({
   schema,
   context: ({req, res}) => {
     return {
-      Book,
-      res
+      Book
     };
   },
+  introspection: true,
   playground: {
    settings: {
     'request.credentials': 'include',
