@@ -18,6 +18,14 @@ const bookSchema = new mongoose.Schema({
   cover: {
     type: String,
   },
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'comment'
+  }],
+  stared: {
+    type: Boolean,
+    default: false
+  }
 },
 { timestamps: true })
 

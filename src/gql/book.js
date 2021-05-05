@@ -1,4 +1,6 @@
-export const typeDef = `
+import { gql } from "apollo-server";
+
+export const typeDef = gql`
   type Book {
     id: ID!
     title: String!
@@ -6,6 +8,9 @@ export const typeDef = `
     info: String
     isbn: String
     cover: String
+    comments: [Comment!]
+    stared: Boolean!
+    # upvote: []
   }
 
   input AddBookInput {
@@ -28,6 +33,15 @@ export const typeDef = `
 
 export const resolvers = {
   // Book queries
+  Book: {
+    comments:  async (parent, _args, { Comment }, _info) => {      
+      const bookComments = await Comment.find(
+        {book: parent.id},
+      ).sort({ createdAt: -1 }).exec();
+      return bookComments;
+    }
+    
+  },
   Query: {
      book: async (_parent, { id }, { Book }, _info) => {
       try {
