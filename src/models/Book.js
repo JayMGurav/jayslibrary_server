@@ -12,7 +12,7 @@ const bookSchema = new mongoose.Schema({
   info: {
     type: String,
   },
-  isbn: {
+  caption: {
     type: String,
   },
   cover: {

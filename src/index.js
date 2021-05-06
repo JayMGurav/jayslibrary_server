@@ -12,6 +12,10 @@ const pubsub = new PubSub();
 
 const server = new ApolloServer({ 
   schema,
+  cors:{
+    origin: "http://localhost:3000",
+    credentials: true
+  },
   context: ({req, res, connection }) => {
     if(req){
       const ip =req.headers['x-forwarded-for'] || req.socket.remoteAddress

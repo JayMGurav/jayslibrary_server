@@ -6,7 +6,7 @@ export const typeDef = gql`
     title: String!
     author: String!
     info: String
-    isbn: String
+    caption: String
     cover: String
     comments: [Comment!]
     stared: Boolean!
@@ -22,7 +22,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    book(id: ID!): Book
+    book(id: ID!): Book!
     books: [Book!]
   }
   
