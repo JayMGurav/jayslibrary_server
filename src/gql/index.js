@@ -11,6 +11,11 @@ import {
   resolvers as commentResolver
 } from "./comment";
 
+import { 
+  typeDef as Vote,
+  resolvers as voteResolver
+} from "./vote";
+
 const InitialSchema = `
   type Query {
     _empty: String
@@ -23,17 +28,18 @@ const InitialSchema = `
   }
 `;
 
-const resolvers = {};
 
 export default makeExecutableSchema({
   typeDefs: mergeTypeDefs([
     InitialSchema,
     Book,
-    Comment
+    Comment,
+    Vote
   ]),
   resolvers: mergeResolvers([
     Object.assign({}, null),
     bookResolvers,
-    commentResolver
+    commentResolver,
+    voteResolver
   ]),
 });

@@ -5,7 +5,11 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: [true, "Comment is required!"]
   },
-  book: {
+  ip: {
+    type: String,
+    required: [true, "ip is required!"]
+  },
+  bookId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'book'
   }

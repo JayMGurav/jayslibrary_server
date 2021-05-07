@@ -10,7 +10,8 @@ export const typeDef = gql`
     cover: String
     comments: [Comment!]
     stared: Boolean!
-    # upvote: []
+    voteCount: Int!
+    votes: [ID!]
   }
 
   input AddBookInput {
@@ -27,7 +28,7 @@ export const typeDef = gql`
   }
   
   extend type Mutation {
-    addBook(input: AddBookInput!): Boolean!
+    addBook(input: AddBookInput!): Book!
   }
 `;
 
@@ -54,7 +55,7 @@ export const resolvers = {
       try {
         return await Book.find({}).exec();
       } catch (error) {
-        throw new Error("Error getting books: ", error.message);
+        throw new Error("Error getting books: "+ error.message);
       }
     },
   },
@@ -62,12 +63,11 @@ export const resolvers = {
   Mutation: {
     addBook: async (_parent, { input }, { Book }, _info) => {
       try {
-        const book =  await Book.create({
+        return await Book.create({
           ...input
         }); 
-        return Boolean(book);
       } catch (error) {
-        throw new Error("Error adding book: ", error.message);
+        throw new Error("Error adding book: "+ error.message);
       }
     },
   }

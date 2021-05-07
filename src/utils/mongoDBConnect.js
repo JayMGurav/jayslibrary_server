@@ -7,7 +7,8 @@ async function mongoDBConnect({url}) {
       useUnifiedTopology: true,
       useFindAndModify: false,
       useCreateIndex: true,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      // autoReconnect: true
     });
     const db = mongoose.connection;
     db.once('open', function() {

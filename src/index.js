@@ -4,8 +4,10 @@ import { ApolloServer, PubSub  } from 'apollo-server';
 
 import schema from "./gql/index"
 import mongoDBConnect from "./utils/mongoDBConnect";
+
 import Book from "./models/Book";
 import Comment from "./models/Comment"
+import Vote from "./models/Vote";
 
 mongoDBConnect({url:process.env.MONGODB_URI});
 const pubsub = new PubSub();
@@ -16,10 +18,13 @@ const server = new ApolloServer({
     origin: "http://localhost:3000",
     credentials: true
   },
-  context: ({req, res, connection }) => {
+  // subscriptions:{
+    // path: ""
+  // },
+  context: ({req }) => {
+    let ip;
     if(req){
-      const ip =req.headers['x-forwarded-for'] || req.socket.remoteAddress
-      console.log({ip});
+      ip = req.headers['x-forwarded-for'] || req.headers['Remote_Addr'] || req.socket.remoteAddress;
     }
 
     // if (connection) {
@@ -32,7 +37,9 @@ const server = new ApolloServer({
       return {
         Book,
         Comment,
-        pubsub
+        Vote,
+        pubsub,
+        ip
       };
     // }
   },
@@ -45,6 +52,7 @@ const server = new ApolloServer({
 });
 
 // The `listen` method launches a web server.
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+server.listen({ port: process.env.PORT || 4000 }).then(({ url, subscriptionsUrl }) => {
   console.log(`🚀  Server ready at ${url}`);
+  console.log(`🚀  Subscriptions Server ready at ${subscriptionsUrl}`);
 });

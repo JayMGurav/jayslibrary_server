@@ -1,15 +1,17 @@
 import { gql } from "apollo-server";
 
+const COMMENT_CREATED = 'COMMENT_CREATED';
+
 export const typeDef = gql`
   type Comment{
     id: ID!
     comment: String!
-    book: Book!
+    bookId: ID!
     createdAt: String!
   }
 
   extend type Subscription {
-    commentedCreated: Comment!
+    commentedCreated: Book!
   }
 
   extend type Query {
@@ -18,24 +20,25 @@ export const typeDef = gql`
   
   extend type Mutation {
     addBookComment(comment: String!, bookId: ID!): Boolean!
+    deleteComment(commentId: ID!, bookId: ID!): Boolean!
   }
 `;
 
 export const resolvers = {
  
-  Comment: {
-    book: async (parent, _args, { Book }, _info) => {
-      try{
-        return await Book.findById(parent.book).exec();
-      } catch (error) {
-        throw new Error("Error getting book for comments: ", error.message);
-      }
-    }
-  },
+  // Comment: {
+    // book: async (parent, _args, { Book }, _info) => {
+    //   try{
+    //     return await Book.findById(parent.book).exec();
+    //   } catch (error) {
+    //     throw new Error("Error getting book for comments: " + error.message);
+    //   }
+    // }
+  // },
     // Comment Subscriptions 
   Subscription: {
     commentedCreated: {
-      subscribe: (_parent, _args, {pubsub}) => pubsub.asyncIterator(['COMMENT_CREATED']),
+      subscribe: (_parent, _args, {pubsub}) => pubsub.asyncIterator([COMMENT_CREATED]),
     },
   },
     // Comment queries 
@@ -44,16 +47,29 @@ export const resolvers = {
       try {
         return await Comment.findById(id).exec();
       } catch (error) {
-        throw new Error("Error getting Comment: ", error.message);
+        throw new Error("Error getting Comment: " + error.message);
       }
     },
   },
   // Comment mutations
   Mutation: {
-    addBookComment: async (_parent, { comment, bookId }, { Comment, Book, pubsub }, _info) => {
+    addBookComment: async (_parent, { comment, bookId }, { Comment, Book, pubsub, ip }, _info) => {
       try {
-        const addedComment =  await Comment.create({
+        const commentExists = await Comment.findOne({
+          $and : [
+            {ip},
+            {book: bookId}
+          ]
+        }).exec();
+        
+        if(Boolean(commentExists)){
+          throw new Error(`You have already commented for this Book`)
+        }
+
+
+        const addedComment = await Comment.create({
           comment,
+          ip,
           book: bookId
         }); 
 
@@ -71,14 +87,24 @@ export const resolvers = {
         }
         const isCommentCreated =  Boolean(addedComment) && Boolean(updateBook);
         if(isCommentCreated){
-          pubsub.publish('COMMENT_CREATED', {
-            commentedCreated: addedComment
+          pubsub.publish(COMMENT_CREATED, {
+            commentedCreated: updateBook
           });          
         }
         return isCommentCreated;
       } catch (error) {
-        throw new Error("Error adding comment: ", error.message);
+        throw new Error(error.message);
       }
-    }
+    },
+
+    deleteComment: async (_parent, { commentId, bookId }, { Comment, Book }, _info) => {
+      try {
+        const removedComment = await Comment.findByIdAndRemove(commentId);
+        const updateBookDoc = await Book.findByIdAndUpdate(bookId, {$pull: {comments: commentId}}, {new:true});
+        return Boolean(removedComment) && Boolean(updateBookDoc);
+      }catch(error){
+        throw new Error("Error deleting comment: "+ error.message);
+      }
+    } 
   }
 };
