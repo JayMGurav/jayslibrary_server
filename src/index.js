@@ -8,6 +8,8 @@ import mongoDBConnect from "./utils/mongoDBConnect";
 import Book from "./models/Book";
 import Comment from "./models/Comment"
 import Vote from "./models/Vote";
+import SuggestedBook from "./models/SuggestedBook";
+
 
 mongoDBConnect({url:process.env.MONGODB_URI});
 const pubsub = new PubSub();
@@ -40,6 +42,7 @@ const server = new ApolloServer({
         Comment,
         Vote,
         pubsub,
+        SuggestedBook,
         ip
       };
     // }

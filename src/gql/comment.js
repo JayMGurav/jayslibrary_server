@@ -1,6 +1,6 @@
 import { gql } from "apollo-server";
 
-const COMMENT_CREATED = 'COMMENT_CREATED';
+// const COMMENT_CREATED = 'COMMENT_CREATED';
 
 export const typeDef = gql`
   type Comment{
@@ -10,16 +10,17 @@ export const typeDef = gql`
     createdAt: String!
   }
 
-  extend type Subscription {
-    commentedCreated: Book!
-  }
+  # extend type Subscription {
+  #   commentedCreated: Book!
+  # }
 
   extend type Query {
     comment(id: ID!): Comment!    
+    comments(bookId: ID!): [Comment!]
   }
   
   extend type Mutation {
-    addBookComment(comment: String!, bookId: ID!): Boolean!
+    addBookComment(comment: String!, bookId: ID!): Comment!
     deleteComment(commentId: ID!, bookId: ID!): Boolean!
   }
 `;
@@ -36,11 +37,11 @@ export const resolvers = {
     // }
   // },
     // Comment Subscriptions 
-  Subscription: {
-    commentedCreated: {
-      subscribe: (_parent, _args, {pubsub}) => pubsub.asyncIterator([COMMENT_CREATED]),
-    },
-  },
+  // Subscription: {
+  //   commentedCreated: {
+  //     subscribe: (_parent, _args, {pubsub}) => pubsub.asyncIterator([COMMENT_CREATED]),
+  //   },
+  // },
     // Comment queries 
   Query: {
     comment: async (_parent, { id }, { Comment }, _info) => {
@@ -50,10 +51,17 @@ export const resolvers = {
         throw new Error("Error getting Comment: " + error.message);
       }
     },
+    comments: async (_parent, { bookId }, { Comment }, _info) => {
+      try {
+        return await Comment.find({bookId}).exec();
+      } catch (error) {
+        throw new Error("Error getting Comments: " + error.message);
+      }
+    },
   },
   // Comment mutations
   Mutation: {
-    addBookComment: async (_parent, { comment, bookId }, { Comment, Book, pubsub, ip }, _info) => {
+    addBookComment: async (_parent, { comment, bookId }, { Comment, Book,  ip }, _info) => {
       try {
         const commentExists = await Comment.findOne({
           $and : [
@@ -87,11 +95,8 @@ export const resolvers = {
         }
         const isCommentCreated =  Boolean(addedComment) && Boolean(updateBook);
         if(isCommentCreated){
-          pubsub.publish(COMMENT_CREATED, {
-            commentedCreated: updateBook
-          });          
+          return addedComment;
         }
-        return isCommentCreated;
       } catch (error) {
         throw new Error(error.message);
       }

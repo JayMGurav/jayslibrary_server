@@ -16,6 +16,11 @@ import {
   resolvers as voteResolver
 } from "./vote";
 
+import { 
+  typeDef as suggestBook,
+  resolvers as suggestBookResolver
+ } from "./suggestedBook";
+
 const InitialSchema = `
   type Query {
     _empty: String
@@ -34,12 +39,14 @@ export default makeExecutableSchema({
     InitialSchema,
     Book,
     Comment,
-    Vote
+    Vote,
+    suggestBook,
   ]),
   resolvers: mergeResolvers([
     Object.assign({}, null),
     bookResolvers,
     commentResolver,
-    voteResolver
+    voteResolver,
+    suggestBookResolver
   ]),
 });
