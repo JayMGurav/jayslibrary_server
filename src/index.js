@@ -15,7 +15,7 @@ const pubsub = new PubSub();
 const server = new ApolloServer({ 
   schema,
   cors:{
-    origin: ["https://jayslibrary.netlify.app/", "http://localhost:3000", "https://jayslibrary.herokuapp.com/"],
+    origin: ["https://jayslibrary.netlify.app", "http://localhost:3000", "https://jayslibrary.herokuapp.com/"],
     credentials: true
   },
   subscriptions:{
