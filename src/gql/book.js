@@ -31,13 +31,13 @@ export const typeDef = gql`
     addBook(input: AddBookInput!): Book!
   }
 `;
-
+ 
 export const resolvers = {
   // Book queries
   Book: {
     comments:  async (parent, _args, { Comment }, _info) => {      
       const bookComments = await Comment.find(
-        {book: parent.id},
+        {bookId: parent.id},
       ).sort({ createdAt: -1 }).exec();
       return bookComments;
     }

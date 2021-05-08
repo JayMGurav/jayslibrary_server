@@ -58,7 +58,7 @@ export const resolvers = {
         const commentExists = await Comment.findOne({
           $and : [
             {ip},
-            {book: bookId}
+            {bookId}
           ]
         }).exec();
         
@@ -70,7 +70,7 @@ export const resolvers = {
         const addedComment = await Comment.create({
           comment,
           ip,
-          book: bookId
+          bookId
         }); 
 
         let updateBook = null;
