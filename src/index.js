@@ -18,9 +18,10 @@ const server = new ApolloServer({
     origin: ["https://jayslibrary.netlify.app/", "http://localhost:3000", "https://jayslibrary.herokuapp.com/"],
     credentials: true
   },
-  // subscriptions:{
-    // path: ""
-  // },
+  subscriptions:{
+    path: '/graphqlSubscriptions',
+    keepAlive: 9000,
+  },
   context: ({req }) => {
     let ip;
     if(req){
